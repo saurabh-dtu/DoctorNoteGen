@@ -1,0 +1,28 @@
+# Ignore build output
+**/bin/
+**/obj/
+
+# Ignore Rider / VS Code / VS
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore secrets and config
+**/appsettings.Development.json
+.env
+
+# Ignore node_modules if any JS libs
+node_modules/
+
+# Ignore logs
+*.log
+
+# macOS-specific
+.DS_Store
+
+# Blazor/ASP.NET-specific
+wwwroot/**/*.publish.json
+wwwroot/**/*.bundle.scp.css

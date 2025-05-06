@@ -1,0 +1,29 @@
+﻿@page "/"
+@inject HttpClient Http
+
+<h3>AI Clinical Note Generator</h3>
+
+<input @bind="userInput" placeholder="Enter symptoms..." class="form-control" style="width: 300px;" />
+<br />
+<button @onclick="GenerateNote" class="btn btn-primary">Generate</button>
+
+<p><strong>Generated Note:</strong></p>
+<p>@noteResult</p>
+
+@code {
+    private string userInput = "";
+    private string noteResult = "";
+
+    private async Task GenerateNote()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync("http://localhost:5198/api/note/generate", userInput);
+            noteResult = await response.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            noteResult = $"Error: {ex.Message}";
+        }
+    }
+}
