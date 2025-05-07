@@ -6,4 +6,5 @@ Run command to start frontend - `dotnet run --project Client`
 
 
 UI
-<img width="1249" alt="image" src="https://github.com/user-attachments/assets/90b46124-481b-4eb4-8fe6-16060331fe21" />
+<img width="1230" alt="Screenshot 2025-05-07 at 1 08 16 AM" src="https://github.com/user-attachments/assets/f463323e-cbac-4f67-bc39-099c65add3e4" />
+
