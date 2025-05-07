@@ -10,8 +10,33 @@
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="Client.styles.css" rel="stylesheet" />
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 </head>
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script>
+    var quill;
 
+    window.initQuill = function (selector) {
+        quill = new Quill(selector, {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    ['clean']
+                ]
+            }
+        });
+    };
+
+    window.setQuillContent = function (html) {
+        quill.root.innerHTML = html;
+    };
+
+    window.getQuillContent = function () {
+        return quill.root.innerHTML;
+    };
+</script>
 <body>
     <div id="app">
         <svg class="loading-progress">

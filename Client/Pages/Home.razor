@@ -1,29 +1,102 @@
 ﻿@page "/"
 @inject HttpClient Http
+@inject IJSRuntime JS
 
-<h3>AI Clinical Note Generator</h3>
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">🩺 AI Clinical Note Generator</h4>
+        </div>
+        <div class="card-body">
 
-<input @bind="userInput" placeholder="Enter symptoms..." class="form-control" style="width: 300px;" />
-<br />
-<button @onclick="GenerateNote" class="btn btn-primary">Generate</button>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Select Speciality</label>
+                <select class="form-select" @bind="selectedSpeciality">
+                    <option value="">-- Choose --</option>
+                    <option value="gyne">Gynecology</option>
+                    <option value="cardio">Cardiology</option>
+                </select>
+            </div>
 
-<p><strong>Generated Note:</strong></p>
-<p>@noteResult</p>
+            <div class="mb-3">
+                <label for="symptoms" class="form-label fw-bold">Enter patient symptoms</label>
+                <textarea id="symptoms" class="form-control" rows="4"
+                          @bind="userInput" placeholder="e.g., abdominal pain, chest tightness"></textarea>
+            </div>
+
+            <button class="btn btn-success" @onclick="GenerateNote" disabled="@isLoading">
+                @(isLoading ? "Generating..." : "Generate Note")
+            </button>
+
+            <div class="mt-4">
+                <label class="form-label fw-bold">Generated Note</label>
+                <div id="editor" style="height: 300px;" class="bg-white border rounded"></div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                <div class="alert alert-danger mt-3" role="alert">
+                    <strong>Error:</strong> @errorMessage
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
 
 @code {
     private string userInput = "";
-    private string noteResult = "";
+    private string errorMessage = "";
+    private bool isLoading = false;
+    private string selectedSpeciality = "";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initQuill", "#editor");
+        }
+    }
 
     private async Task GenerateNote()
     {
+        errorMessage = "";
+
+        if (string.IsNullOrWhiteSpace(userInput) || string.IsNullOrWhiteSpace(selectedSpeciality))
+        {
+            errorMessage = "Please select a speciality and enter symptoms.";
+            return;
+        }
+
+        isLoading = true;
+
         try
         {
-            var response = await Http.PostAsJsonAsync("http://localhost:5198/api/note/generate", userInput);
-            noteResult = await response.Content.ReadAsStringAsync();
+            var payload = new
+            {
+                speciality = selectedSpeciality,
+                symptoms = userInput
+            };
+
+            var response = await Http.PostAsJsonAsync("http://localhost:5198/api/note/generate", payload);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var rawHtml = await response.Content.ReadAsStringAsync();
+                await JS.InvokeVoidAsync("setQuillContent", rawHtml);
+            }
+            else
+            {
+                errorMessage = $"API returned error: {response.StatusCode}";
+            }
         }
         catch (Exception ex)
         {
-            noteResult = $"Error: {ex.Message}";
+            errorMessage = $"Request failed: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 }
